@@ -50,7 +50,8 @@ public class HQ implements Comparable<HQ>{
 	 
 	private int view; // 视图view
 	private volatile boolean viewOk = false; // 视图状态	
-	private volatile boolean isRun =  false;	
+	private volatile boolean isRun;	  //isRun为false表示节点宕机、
+	private volatile boolean isSleep;  //休眠即为不执行共识过程
 	
 	private volatile boolean isByzt;
 	private volatile boolean isHQ;
@@ -108,7 +109,7 @@ public class HQ implements Comparable<HQ>{
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while (isHQ) {
+				while (true) {
 					try {
 						//从消息队列中取出一个消息
 						HQMsg msg = qbm.take();						
@@ -125,13 +126,16 @@ public class HQ implements Comparable<HQ>{
 			int co = 0;
 			@Override
 			public void run() {
-				if(co == 0){
-					// 启动后先同步视图
-					pubView();
+				if(isRun) {
+					if(co == 0){
+						// 启动后先同步视图
+						pubView();
+					}
+					co++;
+					doReq();
+					checkHTimer();
 				}
-				co++;
-				doReq();
-				checkHTimer();
+
 			}
 		}, 10, 100);
 		
@@ -172,6 +176,17 @@ public class HQ implements Comparable<HQ>{
 
 	protected boolean doAction(HQMsg msg) {
 		if(!isRun) return false;
+		if(isSleep) {
+			switch (msg.getType()) {
+			case HCOM:   
+				onHReply(msg);
+				break;
+			case REPLY:
+				onReply(msg);
+				break;	
+			}
+			return false;
+		}
 		if(msg != null){
 			//logger.info("收到消息[" +index+"]:"+ msg);
 			switch (msg.getType()) {
@@ -188,7 +203,7 @@ public class HQ implements Comparable<HQ>{
 			case HCON:
 				onHCommit(msg);
 				break;
-			case HCOM:
+			case HCOM:     /////////isRun为false, onHReply 也会取消 ！！！！！！！！
 				onHReply(msg);
 				break;
 				
@@ -229,7 +244,7 @@ public class HQ implements Comparable<HQ>{
 		HQMsg sed = new HQMsg(msg);
 		sed.setNode(index);//设置节点序号为消息的处理节点号
 		if(msg.getVnum() < view) return;
-		if(msg.getVnum() == index){  //若消息的视图号为  当前的消息号
+		if(msg.getVnum() == view){  //若消息的视图号为  当前的消息号
 			if(applyReq.containsKey(msg.getDataKey())) return; // 已经受理过
 			applyReq.put(msg.getDataKey(), msg);
 			// 主节点收到C的请求后进行广播
@@ -582,7 +597,7 @@ public class HQ implements Comparable<HQ>{
 	 */
 	public void pubView(){
 		HQMsg sed = new HQMsg(VIEW,index);
-		HQMain.publish(sed);
+		HQMain.HQpublish(sed);
 	}
 
 	public int getView() {
@@ -636,10 +651,15 @@ public class HQ implements Comparable<HQ>{
 	
 	public void increCredit() {
 		this.credit += 10; 
+		
 	}
 
 	public boolean isHQ() {
 		return isHQ;
+	}
+	
+	public void setIsSleep(boolean isSleep) {
+		this.isSleep = isSleep;
 	}
 
 	public void setHQ(boolean isHQ) {

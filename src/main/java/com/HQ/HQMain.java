@@ -26,7 +26,7 @@ public class HQMain {
 	public static final int CREDIT_LEVEL = 60;	//总分：100
 	public static final int MIN_CONSENSUS_NUM = 4;  //最小共识节点数
 	public static final int MAX_CONSENSUS_NUM = 20;  //最大共识节点数
-	public static final int REQUEST_NUM = 300; //大于500便开始陷入
+	public static final int REQUEST_NUM = 300; //大于300便开始陷入
 	public static long num = REQUEST_NUM;
 
 	private static long lastTPS;
@@ -72,8 +72,8 @@ public class HQMain {
 			System.out.println("Unenough creditable nodes, there are less than "
 					+ MIN_CONSENSUS_NUM + "creditable nodes!");
 		}else {		
-			for(int i=0;i<consensusNodes.size();i++) {
-				consensusNodes.get(i).start();
+			for(int i=0;i<nodes.size();i++) {
+				nodes.get(i).start();   ///////// 应该所有节点启动，仅共识节点doAction
 			}	
 		}
 		
@@ -97,12 +97,13 @@ public class HQMain {
 		}, 0, 1000);   
 		
 		
-		Thread.sleep(REQUEST_NUM*100);
+		Thread.sleep(REQUEST_NUM*200);
 
 		
 		//console按编号输出执行时间
 		System.out.println("请求运行时长：");
 		System.out.println(costTimes);
+		System.out.println("完成请求数" + costTimes.size());
 		//		for(int i=0;i<costTimes.size();i++) {			
 		//			System.out.println(i + ":" + costTimes.get(i));
 		//		}
@@ -189,9 +190,11 @@ public class HQMain {
 		for(int i=0;i<SIZE;i++) {
 			if(nodes.get(i).getCredit() > creditLevel && num < maxQuantity) {
 				consensusNodes.add(nodes.get(i));		//合规的节点加入共识类节点集合
+				nodes.get(i).setIsSleep(false);
 				num++;
 			}else {
 				candidateNodes.add(nodes.get(i));
+				nodes.get(i).setIsSleep(true);
 			}
 		}
 	}			
