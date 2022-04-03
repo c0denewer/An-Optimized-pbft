@@ -1,1 +1,0 @@
-# PBFT-HQ-GP
