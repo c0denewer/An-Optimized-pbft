@@ -2,7 +2,6 @@ package com.HQ;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -96,7 +95,7 @@ public class HQMain {
 		}, 0, 1000);   
 		
 		
-		Thread.sleep(REQUEST_NUM*200);
+		Thread.sleep(REQUEST_NUM*100);
 
 		
 		//console按编号输出执行时间
