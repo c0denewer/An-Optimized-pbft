@@ -144,37 +144,7 @@ public class HQMain {
 //					//console按编号输出执行时间
 //					System.out.println("测试");
 //					
-//					//console按编号输出执行时间
-//					System.out.println("请求运行时长：");
-//					for(int i=0;i<costTimes.size();i++) {			
-//						System.out.println(i + ":" + costTimes.get(i));
-//					}
-//					//平均执行时间
-//					long timesTotal = 0;
-//					for(int i=0;i<costTimes.size();i++) {	
-//						timesTotal += costTimes.get(i);
-//					}
-//					System.out.println("平均执行时间：" + timesTotal/costTimes.size());
-//					//节点信息
-//					System.out.println("共识节点数：" + SIZE);
-//					//执行时间图表
-//			    	LineChart costTimesChart = new LineChart(costTimes,"Request","Delay/ms","Exectimes");
-//				    SwingUtilities.invokeLater(() -> {    
-//						costTimesChart.setAlwaysOnTop(false);  
-//						costTimesChart.pack();  
-//						costTimesChart.setSize(600, 400);  
-//						costTimesChart.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);  
-//						costTimesChart.setVisible(true);  
-//				    });  
-//				    //吞吐量图表
-//				  	LineChart TPSChart = new LineChart(TPSList,"time/s","TPS","TPS");
-//				    SwingUtilities.invokeLater(() -> {    
-//				    	TPSChart.setAlwaysOnTop(false);  
-//				    	TPSChart.pack();  
-//				    	TPSChart.setSize(600, 400);  
-//				    	TPSChart.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);  
-//				    	TPSChart.setVisible(true);  
-//				    });  
+
 //
 //				}
 //			}
