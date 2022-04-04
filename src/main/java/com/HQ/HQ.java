@@ -137,7 +137,7 @@ public class HQ implements Comparable<HQ>{
 				}
 
 			}
-		}, 10, 100);
+		}, 10, 500);
 		
 		return this;
 	}	
@@ -346,7 +346,7 @@ public class HQ implements Comparable<HQ>{
 			curReq = null; // 当前请求已经完成
 			// 执行相关逻辑					
 			HQMain.collectTimes(msg.computCostTime());
-//			logger.info("请求执行成功[" +index+"]:"+ "------SPbft方法------");
+			System.out.println("请求执行成功[" +index+"]" + "    " + "请求标识: [" +  msg.getData() + "]");
 			
 		}
 	}
@@ -465,8 +465,8 @@ public class HQ implements Comparable<HQ>{
 			replyCount.set(0);
 			curReq = null; // 当前请求已经完成
 			// 执行相关逻辑	
-//			HQMain.collectTimes(msg.computCostTime());
-			logger.info("请求执行成功[" +index+"]:"+ "------Pbft方法------");
+			HQMain.collectTimes(msg.computCostTime());
+			System.out.println("请求执行成功[" +index+"]" + "    " + "请求标识: [" +  msg.getData() + "]");
 
 		}
 	}

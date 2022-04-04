@@ -26,10 +26,10 @@ public class HQMain {
 	public static final int CREDIT_LEVEL = 60;	//总分：100
 	public static final int MIN_CONSENSUS_NUM = 4;  //最小共识节点数
 	public static final int MAX_CONSENSUS_NUM = 20;  //最大共识节点数
-	public static final int REQUEST_NUM = 300; //大于300便开始陷入
+	public static final int REQUEST_NUM = 200; //请求过多，容易遗失
 	public static long num = REQUEST_NUM;
 
-	private static long lastTPS;
+	private static long lastTPSFlag;
 	private static List<Long> TPSList = new ArrayList<>();
 	
 	private static List<HQ> nodes = Lists.newArrayList();
@@ -90,8 +90,7 @@ public class HQMain {
 			@Override
 			public void run() {
 				if(costTimes.size() >0 && costTimes.size() < REQUEST_NUM) {
-					lastTPS = costTimes.size() - lastTPS;
-					TPSList.add(lastTPS);
+					TPSList.add(costTimes.size() - lastTPSFlag);
 				}
 			}
 		}, 0, 1000);   

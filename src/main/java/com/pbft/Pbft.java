@@ -116,7 +116,7 @@ public class Pbft {
 				doReq();
 				checkTimer();
 			}
-		}, 10, 100);
+		}, 10, 500);
 		return this;
 	}	
 	
@@ -301,7 +301,7 @@ public class Pbft {
 			curReq = null; // 当前请求已经完成
 			// 执行相关逻辑					
 			PbftMain.collectTimes(msg.computCostTime());
-			//logger.info("请求执行成功[" +index+"]:"+msg);
+			System.out.println("请求执行成功[" +index+"]" + "    " + "请求标识: [" +  msg.getData() + "]");
 			
 		}
 	}

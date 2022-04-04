@@ -26,10 +26,10 @@ public class PbftMain {
 	public static final int SIZE = 20;
 	public static final double BYZ_RATIO =0;  
 	public static final int LIMITE_SIZE = 25; //CPU在30左右超载
-	public static final int REQUEST_NUM = 300; //大于500便开始丢消息
+	public static final int REQUEST_NUM = 800; //PBFT定时器频繁执行导致请求量受限制，已解决
 	public static long num = REQUEST_NUM;
 
-	private static long lastTPS;
+	private static long lastTPSFlag;
 	private static List<Long> TPSList = new ArrayList<>();
 
 	
@@ -68,16 +68,16 @@ public class PbftMain {
 		}
 
 		//定时计算网络吞吐量
+		//定时计算网络吞吐量
 		Timer TPSTimer = new Timer("TPS");
 		TPSTimer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				if(costTimes.size() >0 && costTimes.size() < REQUEST_NUM) {
-					lastTPS = costTimes.size() - lastTPS;
-					TPSList.add(lastTPS);
+					TPSList.add(costTimes.size() - lastTPSFlag);
 				}
 			}
-		}, 0, 1000);   
+		}, 0, 1000);  
 		
 		//定时判断请求是否已全部完成，如是，则输出测试数据
 		Timer outputTimer = new Timer("Output");
