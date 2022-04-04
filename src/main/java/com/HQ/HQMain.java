@@ -143,9 +143,7 @@ public class HQMain {
 //				    num++;
 //					//console按编号输出执行时间
 //					System.out.println("测试");
-//					
 
-//
 //				}
 //			}
 //		}, REQUEST_NUM*150, 2000); 
