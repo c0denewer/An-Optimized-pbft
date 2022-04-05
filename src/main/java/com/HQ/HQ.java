@@ -52,7 +52,7 @@ public class HQ implements Comparable<HQ>{
 	 
 	private int view; // 视图view
 	private volatile boolean viewOk = false; // 视图状态	
-	private volatile boolean isRun;	  //isRun为false表示节点宕机、
+	private volatile boolean isRun;	  //isRun为false表示节点宕机
 	private volatile boolean isSleep;  //休眠即为不执行共识过程
 	
 	private volatile int isByzt;
@@ -312,7 +312,7 @@ public class HQ implements Comparable<HQ>{
 			return;
 		}
 		
-		//收集确认请求的节点信息
+		//收集节点信息
 		if(timeOutsBackList.containsKey(msg.getData())) {
 			timeOutsBackList.get(msg.getData()).add(msg.getNode());
 		}else {
@@ -321,12 +321,11 @@ public class HQ implements Comparable<HQ>{
 			timeOutsBackList.put(msg.getData(),BackList);
 		}
 		
-		if(votes_pare.contains(msg.getKey()) && !votes_pre.contains(msg.getDataKey()))return;//准备投票有记录  预准备没有他  有错
-
+		if(votes_pare.contains(msg.getKey()) && !votes_pre.contains(msg.getDataKey()))return;
 		votes_pare.add(msg.getKey());		
 		// 票数 +1
 		long agCou = aggre_pare.incrementAndGet(msg.getDataKey());		
-			if(agCou == HQSize){//如果等于hq节点个数  										
+			if(agCou == HQSize){									
 				aggre_pare.remove(msg.getDataKey());
 				timeOutsBack.remove(msg.getData());
 				for(int i=0;i<HQMain.consensusNodes.size();i++) {
@@ -502,12 +501,11 @@ public class HQ implements Comparable<HQ>{
 	/**
 	 * 检测超时情况
 	 */
-	private void checkHTimer() {  ////////////////checkTimer各个模块超时时长可能偏大
+	private void checkHTimer() {  ////////////////checkTimer各个模块超时时长可能有问题
 		
 		//定时检查当前请求执行时长，超时更改共识方法，重新发送请求 
-		//假定超时2000ms后，投票均已完成，未完成请求已失去完成可能
+		//假定超时200ms后，投票均已完成，未完成请求已失去完成可能
 		
-		//////////////////////需修改时间戳变量，用当前的请求时间戳
 		if (curReq !=null && (System.currentTimeMillis() - curReq.getCurTime() >200)) {
 			curReq.setVnum(this.view);
 			replyCount.set(0);
@@ -574,7 +572,6 @@ public class HQ implements Comparable<HQ>{
 			}
 		}
 		remo.forEach((data)->{
-			//待完善，检查、找出缺失节点号、扣分、向pbft转发
 			timeOutsBack.remove(data);
 			timeOutsBackList.remove(data);
 

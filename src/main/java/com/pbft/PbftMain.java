@@ -26,7 +26,7 @@ public class PbftMain {
 	public static final int SIZE = 20;
 	public static final double BYZ_RATIO =0;  
 	public static final int LIMITE_SIZE = 25; //CPU在30左右超载
-	public static final int REQUEST_NUM = 2000; //PBFT定时器频繁执行导致请求量受限制，已解决,但请求过多，容易遗失
+	public static final int REQUEST_NUM = 2000; //请求过多，容易遗失
 	public static long num = REQUEST_NUM;
 
 	private static long lastTPSFlag;
@@ -116,19 +116,6 @@ public class PbftMain {
 	    	TPSChart.setVisible(true);  
 	    });  
 	    
-		//定时判断请求是否已全部完成，如是，则输出测试数据，若不满足，则无法输出数据
-//		Timer outputTimer = new Timer("Output");
-//		outputTimer.schedule(new TimerTask() {
-//			@Override
-//			public void run() {
-//				if(costTimes.size() == num) {
-//				    num++;
-//
-//				}
-//			}
-//		}, REQUEST_NUM*15, 2000); 
-
-		 
 	
 	}
 

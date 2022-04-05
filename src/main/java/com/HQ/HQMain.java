@@ -22,7 +22,7 @@ public class HQMain {
 	
 	static Logger logger = LoggerFactory.getLogger(HQMain.class);	
 	
-	public static final int SIZE = 25;	//CPU在30左右超载
+	public static final int SIZE = 30;	//CPU在30左右超载
 	public static final double BYZ_RATIO =0;  
 	public static final int CREDIT_LEVEL = 60;	//总分：100
 	public static final int MIN_CONSENSUS_NUM = 4;  //最小共识节点数
@@ -135,19 +135,6 @@ public class HQMain {
 	    	TPSChart.setVisible(true);  
 	    });  
 
-		//定时判断请求是否已全部完成，如是，则输出测试数据，若不满足，则无法输出数据
-//		Timer outputTimer = new Timer("Output");
-//		outputTimer.schedule(new TimerTask() {
-//			@Override
-//			public void run() {
-//				if(costTimes.size() == num) {
-//				    num++;
-//					//console按编号输出执行时间
-//					System.out.println("测试");
-
-//				}
-//			}
-//		}, REQUEST_NUM*150, 2000); 
 	    
 	}
 	
