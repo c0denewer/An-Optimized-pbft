@@ -581,6 +581,8 @@ public class HQ implements Comparable<HQ>{
 					node.increCredit();
 				}else{
 					node.decreCredit();
+					HQMain.send(  );
+					HQMain.exchangeNodes();
 				};
 			});
 		});
