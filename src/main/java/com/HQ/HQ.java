@@ -12,6 +12,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;	
 import org.slf4j.LoggerFactory;
@@ -54,8 +55,7 @@ public class HQ implements Comparable<HQ>{
 	private volatile boolean isRun;	  //isRun为false表示节点宕机、
 	private volatile boolean isSleep;  //休眠即为不执行共识过程
 	
-	private volatile boolean isByzt;
-	private volatile boolean isHQ;
+	private volatile int isByzt;
 	private volatile int credit;
 	
 	// 消息队列
@@ -102,12 +102,11 @@ public class HQ implements Comparable<HQ>{
 	
 	private Timer timer;
 	
-	public HQ(int node,int size,boolean isBytz,boolean isHQ) {
+	public HQ(int node,int size,double ratio) {
 		this.index = node;
 		this.size = size;
 		this.maxf = (size-1)/3;
-		this.isByzt = isBytz;
-		this.isHQ = isHQ;
+		this.isByzt = RandomUtils.nextInt(0, (int)(ratio ==0 ? 0:(1/ratio)));
 		this.credit = 100;
 		timer = new Timer("timer"+node);
 	}
@@ -219,7 +218,7 @@ public class HQ implements Comparable<HQ>{
 			case HCON:
 				onHCommit(msg);
 				break;
-			case HCOM:     /////////isRun为false, onHReply 也会取消 ！！！！！！！！
+			case HCOM:    
 				onHReply(msg);
 				break;
 				
@@ -303,7 +302,7 @@ public class HQ implements Comparable<HQ>{
 		HQMsg sed = new HQMsg(msg);	
 		sed.setType(HBA);
 		sed.setNode(index);
-		if(isByzt) sed.setOk(false);  //拜占庭作恶
+		if(isByzt == 1) sed.setOk(false);  //拜占庭作恶
 		HQMain.send(getPriNode(view), sed);	
 	}	
 	
@@ -510,7 +509,7 @@ public class HQ implements Comparable<HQ>{
 		//假定超时2000ms后，投票均已完成，未完成请求已失去完成可能
 		
 		//////////////////////需修改时间戳变量，用当前的请求时间戳
-		if (curReq !=null && (System.currentTimeMillis() - curReq.getCurTime() >1000)) {
+		if (curReq !=null && (System.currentTimeMillis() - curReq.getCurTime() >200)) {
 			curReq.setVnum(this.view);
 			replyCount.set(0);
 			if(curReq.getType() == HREQ) {
@@ -528,7 +527,7 @@ public class HQ implements Comparable<HQ>{
 		
 		//检查消息超时
 		for(Entry<String, Long> item : timeOuts.entrySet()){
-			if(System.currentTimeMillis() - item.getValue() > 1000){
+			if(System.currentTimeMillis() - item.getValue() > 200){
 				// 超时还没达成一致，则本次投票无效
 				//logger.info("投票无效["+index+"]:"+ item.getKey());
 				remo.add(item.getKey());
@@ -542,7 +541,7 @@ public class HQ implements Comparable<HQ>{
 		
 		//检查请求超时
 		for(Entry<String, Long> item : timeOutsReq.entrySet()){
-			if(System.currentTimeMillis() - item.getValue() > 600){
+			if(System.currentTimeMillis() - item.getValue() > 200){
 				// 请求超时
 				remo.add(item.getKey());
 			}
@@ -569,12 +568,12 @@ public class HQ implements Comparable<HQ>{
 		
 		//检查Back阶段所有确认消息超时
 		for(Entry<String, Long> item : timeOutsBack.entrySet()){
-			if(System.currentTimeMillis() - item.getValue() > 600){
+			if(System.currentTimeMillis() - item.getValue() > 500){
 				// 请求超时
+				logger.info("Back回复检查超时");
 				remo.add(item.getKey());
 			}
 		}
-
 		remo.forEach((data)->{
 			//待完善，检查、找出缺失节点号、扣分、向pbft转发
 			timeOutsBack.remove(data);
@@ -592,12 +591,10 @@ public class HQ implements Comparable<HQ>{
 							push(reReq);
 						}
 					});
-//                  HQMain.exchangeNodes();
+					HQMain.exchangeNodes(node);
 				};
 			});
-		});
-		
-		
+		});		
 	}
 		
 	private void onChangeView(HQMsg msg) {
@@ -688,21 +685,25 @@ public class HQ implements Comparable<HQ>{
 			e.printStackTrace();
 		}
 	}
+
+	public int getIndex(){
+		return this.index;
+	}
 	
+	public void setByzt() {
+		logger.info("拜占庭[" +index+"]--------------");
+		this.isByzt = 1;
+	}
+	
+	public void setIsSleep(boolean isSleep) {
+		this.isSleep = isSleep;
+	}
+
 	public void close(){
 		logger.info("宕机[" +index+"]--------------");
 		this.isRun = false;
 	}
 	
-	public void setByzt() {
-		logger.info("拜占庭[" +index+"]--------------");
-		this.isByzt = true;
-	}
-
-	public int getIndex(){
-		return this.index;
-	}
-
 	public void back() {
 		logger.info("恢复[" +index+"]--------------");
 		this.isRun = true;
@@ -713,26 +714,15 @@ public class HQ implements Comparable<HQ>{
 	}
 	
 	public void increCredit() {
-		this.credit += 10; 
-		
+		this.credit += 10; 		
 	}
 	
 	public void decreCredit() {
 		this.credit -= 10;
 	}
 
-	public boolean isHQ() {
-		return isHQ;
-	}
+
 	
-	public void setIsSleep(boolean isSleep) {
-		this.isSleep = isSleep;
-	}
-
-	public void setHQ(boolean isHQ) {
-		this.isHQ = isHQ;
-	}
-
 // Implement comparable interface
     @Override
     public int compareTo(HQ o) {

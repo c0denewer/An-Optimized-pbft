@@ -33,7 +33,7 @@ public class Pbft {
 	public int size; // 总节点数
 	public int maxf; // 最大失效节点	
 	private int index; // 节点标识
-	private int isByz; //拜占庭节点标志
+	private int isByzt; //拜占庭节点标志
 	
 	private int view; // 视图view
 	private volatile boolean viewOk = false; // 视图状态
@@ -81,7 +81,7 @@ public class Pbft {
 		this.index = node;
 		this.size = size;
 		this.maxf = (size-1)/3;
-		this.isByz = RandomUtils.nextInt(0, (int)(ratio ==0 ? 0:(1/ratio)));
+		this.isByzt = RandomUtils.nextInt(0, (int)(ratio ==0 ? 0:(1/ratio)));
 		timer = new Timer("timer"+node);
 	}
 	
@@ -432,9 +432,11 @@ public class Pbft {
 		timeOuts.remove(it);
 	}	
 	
-	/**
-	 * 广播视图view
-	 */
+
+	public int getIndex(){
+		return this.index;
+	}
+
 	public void pubView(){
 		PbftMsg sed = new PbftMsg(VIEW,index);
 		PbftMain.publish(sed);
@@ -448,17 +450,19 @@ public class Pbft {
 		this.view = view;
 	}
 	
-	public void close(){
-		//logger.info("宕机[" +index+"]--------------");
-		this.isRun = false;
-	}
-
-	public int getIndex(){
-		return this.index;
+	public void setByzt() {
+		logger.info("拜占庭[" +index+"]--------------");
+		this.isByzt = 1;
 	}
 
 	public void back() {
 		//logger.info("恢复[" +index+"]--------------");
 		this.isRun = true;
 	}
+	public void close(){
+		//logger.info("宕机[" +index+"]--------------");
+		this.isRun = false;
+	}
+
+
 }

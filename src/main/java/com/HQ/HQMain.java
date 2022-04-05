@@ -2,6 +2,7 @@ package com.HQ;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,10 +23,11 @@ public class HQMain {
 	static Logger logger = LoggerFactory.getLogger(HQMain.class);	
 	
 	public static final int SIZE = 25;	//CPU在30左右超载
+	public static final double BYZ_RATIO =0;  
 	public static final int CREDIT_LEVEL = 60;	//总分：100
 	public static final int MIN_CONSENSUS_NUM = 4;  //最小共识节点数
 	public static final int MAX_CONSENSUS_NUM = 20;  //最大共识节点数
-	public static final int REQUEST_NUM = 200; //请求过多，容易遗失
+	public static final int REQUEST_NUM = 2000; //请求过多，容易遗失
 	public static long num = REQUEST_NUM;
 
 	private static long lastTPSFlag;
@@ -59,7 +61,7 @@ public class HQMain {
 		
 		//创建网络节点 
 		for(int i=0;i<SIZE;i++){
-			nodes.add(new HQ(i,SIZE,false,true));
+			nodes.add(new HQ(i,SIZE,BYZ_RATIO));
 		}
 		
 		//共识节点,候选节点分类 并传入HQ类静态变量  
@@ -90,12 +92,13 @@ public class HQMain {
 			public void run() {
 				if(costTimes.size() >0 && costTimes.size() < REQUEST_NUM) {
 					TPSList.add(costTimes.size() - lastTPSFlag);
+					lastTPSFlag = costTimes.size();
 				}
 			}
 		}, 0, 1000);   
 		
 		
-		Thread.sleep(REQUEST_NUM*100);
+		Thread.sleep(REQUEST_NUM*40);
 
 		
 		//console按编号输出执行时间
@@ -151,7 +154,6 @@ public class HQMain {
 	
 	//取满足可信度水平且不超过最大共识节点数的所有节点
 	public static void classifyNodes(int creditLevel, int maxQuantity) {
-//		Collections.reverse(nodes);   //集合降序排列----暂时不用
 		int num = 0;
 		for(int i=0;i<SIZE;i++) {
 			if(nodes.get(i).getCredit() > creditLevel && num < maxQuantity) {
@@ -164,6 +166,14 @@ public class HQMain {
 			}
 		}
 	}			
+	
+	//节点的换进换出
+	public static void exchangeNodes(HQ node) {
+		node.setIsSleep(true);
+		candidateNodes.add(nodes.get(node.getIndex()));
+		Collections.reverse(candidateNodes);   //按candidateNodes的credit降序排列
+		candidateNodes.get(0).setIsSleep(false);	
+	}
 	
 	public static void Bstart() {
 		for(int i=0;i<candidateNodes.size();i++) {
