@@ -33,7 +33,7 @@ public class Pbft {
 	public int size; // 总节点数
 	public int maxf; // 最大失效节点	
 	private int index; // 节点标识
-	private int isByzt; //拜占庭节点标志
+	private int isByzt; //拜占庭作恶未添加
 	
 	private int view; // 视图view
 	private volatile boolean viewOk = false; // 视图状态

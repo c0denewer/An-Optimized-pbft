@@ -98,7 +98,7 @@ public class HQMain {
 		}, 0, 1000);   
 		
 		
-		Thread.sleep(REQUEST_NUM*40);
+		Thread.sleep(REQUEST_NUM*40);  
 
 		
 		//console按编号输出执行时间
@@ -135,7 +135,7 @@ public class HQMain {
 	    	TPSChart.setVisible(true);  
 	    });  
 
-		//定时判断请求是否已全部完成，如是，则输出测试数据
+		//定时判断请求是否已全部完成，如是，则输出测试数据，若不满足，则无法输出数据
 //		Timer outputTimer = new Timer("Output");
 //		outputTimer.schedule(new TimerTask() {
 //			@Override

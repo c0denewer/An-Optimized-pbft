@@ -254,7 +254,6 @@ public class HQ implements Comparable<HQ>{
 	
 	//第一步 HREQ 主节点广播信息
 	private void onHReq(HQMsg msg) {
-
 		if(!msg.isOk()) return;
 		HQMsg sed = new HQMsg(msg);
 		sed.setNode(index);
