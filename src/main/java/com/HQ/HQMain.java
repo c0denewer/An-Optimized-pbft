@@ -57,7 +57,7 @@ public class HQMain {
 			}
 		}	  
 		
-		//创建网络节点 标号第i个 总数size 非拜占庭 默认hq节点
+		//创建网络节点 
 		for(int i=0;i<SIZE;i++){
 			nodes.add(new HQ(i,SIZE,false,true));
 		}
@@ -72,11 +72,11 @@ public class HQMain {
 					+ MIN_CONSENSUS_NUM + "creditable nodes!");
 		}else {		
 			for(int i=0;i<nodes.size();i++) {
-				nodes.get(i).start();   ///////// 应该所有节点启动，仅共识节点doAction
+				nodes.get(i).start();   //所有节点启动，仅共识节点doAction
 			}	
 		}
 		
-		//全网节点随机产生请求   从node队列中的第random个节点，产生req请求，数据为字符串"testi"
+		//全网节点随机产生请求  
 		for(int i=0;i<REQUEST_NUM;i++){
 			int node = r.nextInt(SIZE);
 			nodes.get(node).req("test"+i);
@@ -178,12 +178,12 @@ public class HQMain {
 	 */
 	public static void HQpublish(HQMsg msg){
 		//logger.info("HQpublish广播消息[" +msg.getNode()+"]:"+ msg);
-		for(HQ hq:consensusNodes){//在共识节点中的每一个节点，都把msg放入共识的qbm中
+		for(HQ hq:consensusNodes){
 			// 模拟网络时延
 			TimerManager.schedule(()->{
 				hq.push(new HQMsg(msg));
 				return null;
-			}, delayNet[msg.getNode()][hq.getIndex()]);  //延迟选择中第一个函数为（消息本身处理的节点号，hq中节点标号）
+			}, delayNet[msg.getNode()][hq.getIndex()]);  
 		}
 	}
 

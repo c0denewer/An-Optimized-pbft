@@ -258,28 +258,28 @@ public class HQ implements Comparable<HQ>{
 
 		if(!msg.isOk()) return;
 		HQMsg sed = new HQMsg(msg);
-		sed.setNode(index);//设置节点序号为消息的处理节点号
+		sed.setNode(index);
 		if(msg.getVnum() < view) return;
-		if(msg.getVnum() == view){  //若消息的视图号为  当前的消息号
+		if(msg.getVnum() == view){  
 			if(applyReq.containsKey(msg.getDataKey())) return; // 已经受理过
 			applyReq.put(msg.getDataKey(), msg);
 			timeOutsBack.put(msg.getData(), System.currentTimeMillis());
 			// 主节点收到C的请求后进行广播
-			sed.setType(HPP);//消息的种类设置为hq的预准备
+			sed.setType(HPP);
 			// 主节点生成序列号
 			int no = genNo.incrementAndGet();
-			sed.setNo(no);//把消息序列号+1的值设置为消息的序列号  ，在hqms中的
-			HQMain.HQpublish(sed);//通过调用 main中的func：延迟一定时间后，把msg加入qbm队列
-		}else if(msg.getNode() != index){ // 如果 消息的处理的节点不是现在这个节点						为什么是主节点收到才行
+			sed.setNo(no);
+			HQMain.HQpublish(sed);
+		}else if(msg.getNode() != index){			
 			// 非主节点收到，说明可能主节点宕机
 			if(doneReq.containsKey(msg.getDataKey())){				
 				// 已经处理过，直接回复
 				sed.setType(REPLY);
-				HQMain.send(msg.getNode(), sed);		//发给msg造出来的那个节点   对应图最后一列
+				HQMain.send(msg.getNode(), sed);		
 			}else{
 				// 认为客户端进行了CV投票 变更视图投票
 				votes_vnum.add(msg.getNode()+"@"+(msg.getVnum()+1));
-				vnumAggreCount.incrementAndGet(msg.getVnum()+1);	//消息视图号+1的那个投票数加1
+				vnumAggreCount.incrementAndGet(msg.getVnum()+1);	
 				// 未处理，说明可能主节点宕机，转发给主节点试试
 				//logger.info("转发主节点[" +index+"]:"+ msg);		//发给主节点
 				HQMain.send(getPriNode(view), sed);
@@ -300,7 +300,7 @@ public class HQ implements Comparable<HQ>{
 		// 移除请求超时，假如有请求的话
 		timeOutsReq.remove(msg.getData());
 		// 进入准备阶段
-		HQMsg sed = new HQMsg(msg);	//设置成hback类型的消息  消息的节点设成现在这个节点  用主函数里的send函数发给主节点priNode
+		HQMsg sed = new HQMsg(msg);	
 		sed.setType(HBA);
 		sed.setNode(index);
 		if(isByzt) sed.setOk(false);  //拜占庭作恶
@@ -327,7 +327,7 @@ public class HQ implements Comparable<HQ>{
 
 		votes_pare.add(msg.getKey());		
 		// 票数 +1
-		long agCou = aggre_pare.incrementAndGet(msg.getDataKey());		//同意准备的投票里把消息的 （string@序列号）的票数+1
+		long agCou = aggre_pare.incrementAndGet(msg.getDataKey());		
 			if(agCou == HQSize){//如果等于hq节点个数  										
 				aggre_pare.remove(msg.getDataKey());
 				timeOutsBack.remove(msg.getData());
@@ -337,9 +337,9 @@ public class HQ implements Comparable<HQ>{
 				// 进入提交阶段
 				HQMsg sed = new HQMsg(msg);
 				sed.setType(HCON);
-				sed.setNode(index);//把节点的序号给赋给消息的节点号
-				doneReq.put(sed.getDataKey(), sed);	//加入doneReq队列
-				HQMain.HQpublish(sed);//主函数中调用hq的push方法 ，加入节点自己的qbm队列
+				sed.setNode(index);
+				doneReq.put(sed.getDataKey(), sed);	
+				HQMain.HQpublish(sed);
 			}
 			//主节点未得到所有投票情况，用超时机制处理
 		
@@ -351,14 +351,14 @@ public class HQ implements Comparable<HQ>{
 		// data模拟数据摘要
 
 		if(msg.getNode() != index){
-			this.genNo.set(msg.getNo());//序列号设置为（消息的序列号）
+			this.genNo.set(msg.getNo());
 		}
 	
 		HQMsg sed = new HQMsg(msg);
 		sed.setType(HCOM);
 		sed.setNode(index);
 		// 回复客户端
-		HQMain.send(sed.getOnode(), sed);//发给发出这个消息的节点  即客户端
+		HQMain.send(sed.getOnode(), sed);
 	}
 	
 	//第五步
@@ -498,9 +498,7 @@ public class HQ implements Comparable<HQ>{
 	
 	public boolean checkMsg(HQMsg msg,boolean isPre){
 		return (msg.isOk() && msg.getVnum() == view 
-				// pre阶段校验
-		//（是前一个取反  ||  是主节点自己   ||          （ 视图的主节点等于消息的处理节点 且 消息的序号 等于 现在生成的序列号 ）
-				&& (!isPre || msg.getNode() == index || (getPriNode(view) == msg.getNode() && msg.getNo() > genNo.get()))  );
+			&& (!isPre || msg.getNode() == index || (getPriNode(view) == msg.getNode() && msg.getNo() > genNo.get()))  );
 	}	
 
 	/**
@@ -594,7 +592,7 @@ public class HQ implements Comparable<HQ>{
 							push(reReq);
 						}
 					});
-                  //HQMain.exchangeNodes();
+//                  HQMain.exchangeNodes();
 				};
 			});
 		});
