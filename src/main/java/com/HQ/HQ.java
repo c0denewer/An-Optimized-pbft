@@ -171,6 +171,7 @@ public class HQ implements Comparable<HQ>{
 		if(curReq == null)return false;
 		curReq.setVnum(this.view);
 		curReq.setTime(System.currentTimeMillis());
+		curReq.setCurTime(System.currentTimeMillis());
 		doSendCurReq();
 		return true;
 	}
@@ -505,17 +506,22 @@ public class HQ implements Comparable<HQ>{
 	/**
 	 * 检测超时情况
 	 */
-	private void checkHTimer() {
+	private void checkHTimer() {  ////////////////checkTimer各个模块超时时长可能偏大
+		
 		//定时检查当前请求执行时长，超时更改共识方法，重新发送请求 
 		//假定超时2000ms后，投票均已完成，未完成请求已失去完成可能
-		if (curReq !=null && (System.currentTimeMillis() - curReq.getTime() >2000)) {
+		
+		//////////////////////需修改时间戳变量，用当前的请求时间戳
+		if (curReq !=null && (System.currentTimeMillis() - curReq.getCurTime() >1000)) {
 			curReq.setVnum(this.view);
 			replyCount.set(0);
 			if(curReq.getType() == HREQ) {
 				curReq.setType(REQ);
+				curReq.setCurTime(System.currentTimeMillis());
 				doSendCurReq();
 			}else {
 				curReq.setType(HREQ);
+				curReq.setCurTime(System.currentTimeMillis());
 				doSendCurReq();
 			}
 		}
@@ -581,8 +587,14 @@ public class HQ implements Comparable<HQ>{
 					node.increCredit();
 				}else{
 					node.decreCredit();
-					HQMain.send(  );
-					HQMain.exchangeNodes();
+					applyReq.forEach((dataKey, msg)->{
+						if(msg.getData() == data) {
+							HQMsg reReq = new HQMsg(msg);
+							reReq.setCurTime(System.currentTimeMillis());
+							push(reReq);
+						}
+					});
+                  //HQMain.exchangeNodes();
 				};
 			});
 		});
@@ -605,6 +617,7 @@ public class HQ implements Comparable<HQ>{
 			if(curReq != null){
 				curReq.setVnum(this.view);
 				logger.info("请求重传["+index+"]："+ curReq);
+				curReq.setCurTime(System.currentTimeMillis());
 				doSendCurReq();
 			}
 		}

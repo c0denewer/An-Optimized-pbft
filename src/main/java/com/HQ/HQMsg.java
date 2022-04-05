@@ -9,7 +9,8 @@ public class HQMsg {
 	private int onode; 	 // 发起请求的节点
 	private int vnum;    // 视图编号
 	private int no;      // 序列号
-	private long time = 0; // 时间戳，发出请求之前标记
+	private long time = 0; // 请求初次时间戳，发出请求之前标记
+	private long curTime = 0;  // 请求重发时间戳
 	private long costTime;
 	private String data;   // 数据,表示数据的hash,必须唯一
 	
@@ -52,9 +53,17 @@ public class HQMsg {
 	public long getTime() {
 		return time;
 	}
+	
+	public long getCurTime() {
+		return curTime;
+	}
 
 	public void setTime(long time) {
 		this.time = time;
+	}
+	
+	public void setCurTime(long curTime) {
+		this.curTime = curTime;
 	}
 	
 	public long computCostTime() {
